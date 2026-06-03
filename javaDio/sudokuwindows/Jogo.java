@@ -17,18 +17,18 @@ import javax.swing.border.LineBorder;
 public class Jogo extends JFrame implements ActionListener
 {
    JButton btReiniciar, btVerifica, btCompleta, btSair, btArquivo;
-   JLabel  lbQtdBuracos;
-   public static JTextField txtQtdBuracos;
+   JLabel  lbQtdBuracos, lbQtdErros;
+   public static JTextField txtQtdBuracos, txtQtdErros;
 			
    JPanel mainPanel;
-   JPanel[][] sudokuSector = new JPanel[3][3];
+   public static JPanel[][] sudokuSector = new JPanel[3][3];
    
-   private String row,col,value,fixed,foto, flag;
+   private String row,col,value,fixed, flag;
    byte[] bytefoto;
    public static int linha,pro, qtdBuracos, qtdErros;///procura
 
-
-   private static Space novoquadro[][]= new Space[9][9];
+   public static boolean fim;
+   public static Space novoquadro[][]= new Space[9][9];
    
   ArrayList pegaTudo;////carrega com lista
 
@@ -38,6 +38,7 @@ public Jogo()
   setLayout(null);
   setLocationRelativeTo(null);
   flag="vazio";//vazio ou criado o quadro
+  fim=false;
 
     
   //JButton btReiniciar, btVerifica, btCompleta, btSair;
@@ -127,6 +128,17 @@ mainPanel.setLayout(new GridLayout(3,3));
 		add(txtQtdBuracos);
 		
 		
+		lbQtdErros=new JLabel("Erros cometidos:");
+		lbQtdErros.setToolTipText("Quantidade maxima de 5 Erros");
+		lbQtdErros.setBounds(130+110,660,100,20);
+		add(lbQtdErros);
+		
+		txtQtdErros=new JTextField(""+qtdErros);
+		txtQtdErros.setToolTipText("Quantidade maxima de 5 Erros");
+		txtQtdErros.setBounds(130+220,660,30,20);
+		txtQtdErros.setEnabled(false);
+		add(txtQtdErros);
+		
 
 		btArquivo.setBounds(20,15,100,20); btArquivo.addActionListener(this);
 		btReiniciar.setBounds(20+110,15,100,20); btReiniciar.addActionListener(this);
@@ -143,7 +155,7 @@ mainPanel.setLayout(new GridLayout(3,3));
     
 }////////////construtor
 
-private List<Space> getSpacesFromSector(final int initCol, final int endCol,final int initRow, final int endRow)
+public static List<Space> getSpacesFromSector(final int initCol, final int endCol,final int initRow, final int endRow)
     {
         List<Space> spaceSector = new ArrayList<>();
         
@@ -197,7 +209,7 @@ private void carregaArquivo()
 		    valorx=Integer.parseInt(value);
 		    fixo=Boolean.parseBoolean(fixed);	
 			
-			novoquadro[linha][coluna]=new Space(valorx,fixo);
+			novoquadro[linha][coluna]=new Space(valorx,fixo, linha, coluna);
 			
             
         }//for
@@ -209,30 +221,10 @@ private void carregaArquivo()
 		return;
 	}
 	
-}
-
-public byte[] imageToByte(String arqimg) //throws IOException
-	{
-		InputStream is = null;
-		byte[] buffer = null;
-		try
-		{
-			is = new FileInputStream(arqimg);
-			buffer = new byte[is.available()];
-			is.read(buffer);
-			is.close();
-		}
-		catch (Exception e) {
-		JOptionPane.showMessageDialog(null,"erro bytes foto="+e);
-			}
-	return buffer;
-	}/////////
-	
+}/////carrega arquivo na matriz 9x9
 
 ///////////////////////////////////////////////////////////////	
 	
-	
-
 public static void alteraTextoDoPainel(JPanel painel)
 {
 		// Percorre todos os componentes dentro do JPanel
@@ -247,6 +239,9 @@ public static void alteraTextoDoPainel(JPanel painel)
 					if (comp2 instanceof NumberText)
 					{
 						NumberText campo = (NumberText) comp2;
+						
+						if(campo.getText().trim().isEmpty()) qtdBuracos++;
+						
 						if(campo.getIsfixo())
 						{
 							//System.out.println("-------numero fixo="+campo.getText());
@@ -262,6 +257,8 @@ public static void alteraTextoDoPainel(JPanel painel)
 							{
 							   //System.out.println(".....valor zero");
 							   campo.setText(" ");
+							   campo.setBackground(Color.WHITE);
+							   qtdBuracos++;
 							}
 						}	
 						//System.out.println("pega um valor="+campo.getText());
@@ -278,7 +275,7 @@ public static void alteraTextoDoPainel(JPanel painel)
 public static void verificaTextoDoPainel(JPanel painel, List<Space> vcerto)
 {
 	   int xp=0, px=0;
-		// Percorre todos os componentes dentro do JPanel
+	  // Percorre todos os componentes dentro do JPanel
 		for (Component comp1 : painel.getComponents())
 		{
 		  if (comp1 instanceof JPanel)
@@ -290,22 +287,27 @@ public static void verificaTextoDoPainel(JPanel painel, List<Space> vcerto)
 		       if (comp2 instanceof NumberText)
 			   {
 				NumberText campo = (NumberText) comp2;
-						
-				//System.out.println("pega um valor="+campo.getText());
 				String sv="0"+campo.getText();
 						//System.out.println("string valor="+sv);
 				int v=Integer.parseInt(sv);
 						//System.out.println("numero valor="+v);
 				px=vcerto.get(xp).getEsperado(); xp=xp+1;
-				if(v!=px)
+				
+				if(!campo.getIsfixo())
+				if(!campo.getText().trim().isEmpty())
+				{		
+				  //System.out.println("valor digitado="+campo.getText());
+				  //System.out.println("valor certo="+v);
+				  if(v!=px)
 				   {
-							   campo.setForeground(Color.RED);
-							   qtdErros=qtdErros+1;
+						campo.setForeground(Color.RED);
+						qtdErros=qtdErros+1;
 					}
-				else
-				{
-					 campo.setForeground(Color.BLUE);
-				}	
+				  else
+				  {
+					 campo.setForeground(Color.GREEN);
+				  }
+				}// if empty  	
 			   }//if comp2 = NumberText	
 						
 		     }//for comp2
@@ -379,7 +381,6 @@ public void actionPerformed(ActionEvent ae)
  
     if(ae.getSource()==btVerifica)
     { 
-		//System.out.println("Usuario clicou em Verifica");
 		qtdErros=0;
 		int r=0, c=0, endCol=2, endRow=2;
 		for (int i = 0; i < 3; i++)
@@ -410,26 +411,22 @@ public void actionPerformed(ActionEvent ae)
                 JOptionPane.QUESTION_MESSAGE
         );
 
-        if (resposta == JOptionPane.YES_OPTION) {
-            System.out.println("Usuario clicou em Sim!");
-  			  // Percorre a matriz de painel
-			 for (int i = 0; i < 3; i++)
-			 {
-				 for (int j = 0; j < 3; j++)
-				  {
-						//System.out.println("setor linha="+i+" setor coluna="+j);
-						alteraTextoDoPainel(sudokuSector[i][j]);
-							
-					}//for j
-			   }//for  i   
-							   
+        if (resposta == JOptionPane.YES_OPTION)
+        {
+           reIniciar();
+			   			   
             // Lógica para confirmar a ação
         } else if (resposta == JOptionPane.NO_OPTION) {
             System.out.println("Usuario clicou em Nao!");
+            return;
         } else {
             System.out.println("Usuario fechou a janela ou cancelou!");
+            return;
         }
-	 	
+	 	qtdErros=0;
+		txtQtdErros.setText(""+qtdErros);
+		txtQtdBuracos.setText(""+qtdBuracos);
+		fim=false;
 	}//if reiniciar
 
 	if(ae.getSource()==btArquivo)
@@ -451,7 +448,28 @@ public void actionPerformed(ActionEvent ae)
 /////////////////////////////////////////
 
 }////acao dos botoes
-
+public static void reIniciar()
+{
+     System.out.println("Usuario clicou em Sim!");
+  			  // Percorre a matriz de painel
+  			 qtdBuracos=0;
+  			 txtQtdBuracos.setText(""+qtdBuracos);
+  			 System.out.println("antes qtd Buracos="+qtdBuracos);
+			 for (int i = 0; i < 3; i++)
+			 {
+				 for (int j = 0; j < 3; j++)
+				  {
+						//System.out.println("setor linha="+i+" setor coluna="+j);
+						alteraTextoDoPainel(sudokuSector[i][j]);
+							
+				  }//for j
+			  }//for  i   
+		System.out.println("depois qtd Buracos="+qtdBuracos);
+		qtdErros=0;
+		txtQtdErros.setText(""+qtdErros);
+		txtQtdBuracos.setText(""+qtdBuracos);
+		fim=false;	
+}
 
 public static void main(String t[])
    {
