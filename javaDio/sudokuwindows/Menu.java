@@ -8,11 +8,14 @@ implements ActionListener, MenuListener, MouseListener
 {
      private JMenuBar menuBar;
      private JMenu jogoMenu, sobreMenu, sairMenu;
-     private JMenuItem jogoIniciar,jogoCriar, jogoSair;
+     private JMenuItem jogoConfig, jogoIniciar,jogoCriar, jogoSair;
      private JMenuItem sobreAJUDA;
      private JLabel lbFoto;
      
      private JMenuItem menuSair;
+     
+     public static String maxErros;
+     public static int maximo;
      
  public void menuCanceled(MenuEvent e){
   }
@@ -67,6 +70,31 @@ public void mouseReleased(MouseEvent e){}
             System.exit(0);
         }
         
+        if(ae.getSource()==jogoConfig)
+        {   JOptionPane.showMessageDialog(this,"Configurando a quantidade de Erros possiveis, padrao sao 5 erros");
+			
+			Object[] choices = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
+            
+            Object selectedValue = JOptionPane.showInputDialog(null,
+            "Escolha a Quantidade", 
+            "Opcao",
+              JOptionPane.INFORMATION_MESSAGE,
+               null,
+               choices,
+               choices[4]); //
+
+	     	  try {
+				String maxErros=(String) selectedValue;  
+				maximo = Integer.parseInt(maxErros);
+				JOptionPane.showMessageDialog(null, "Voce escolheu o maximo de "+ maximo + " Erros");
+				
+			  } catch (Exception e) {
+				 JOptionPane.showMessageDialog(null, "Vc manteve o padrao de 5 erros...");
+			  }
+		  
+            return;
+        }
+        
         if(ae.getSource()==jogoIniciar)
         {   JOptionPane.showMessageDialog(this,"Comecando o jogo sudoku, vc precisa escolher um quadro para jogar");
 			new Jogo();
@@ -86,7 +114,7 @@ public void mouseReleased(MouseEvent e){}
          setLayout(null);
          setSize(450, 300);//larg, alt
          setLocation(200,200);
-         
+         maximo=5; //qtd padrao maxima de erros
         
         // Cria uma barra de menu para o JFrame
         menuBar=new JMenuBar();
@@ -115,15 +143,18 @@ menuBar.add(sairMenu);
 
 // Cria e adiciona um item simples para o menu
 jogoIniciar=new JMenuItem("Iniciar novo Jogo");
+jogoConfig=new JMenuItem("Configura quant. de Erros");
 jogoCriar=new JMenuItem("Criar Quadro no Jogo");
 jogoSair=new JMenuItem("Sair");
 
 jogoMenu.add(jogoIniciar);
+jogoMenu.add(jogoConfig);
 jogoMenu.add(jogoCriar);
 jogoMenu.addSeparator();//linha de separacao
 jogoMenu.add(jogoSair);
 
 jogoCriar.addActionListener(this);//funfa
+jogoConfig.addActionListener(this);//funfa
 jogoIniciar.addActionListener(this);//funfa
 jogoSair.addActionListener(this);//funfa
 ////////////////////////////////////////////////////////

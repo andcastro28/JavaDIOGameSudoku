@@ -116,6 +116,7 @@ public class NumberText extends JTextField implements FocusListener
      @Override
      public void focusLost(FocusEvent e)
       {
+		        this.setForeground(Color.BLACK);
                   if(Jogo.fim==true) return; 
                   
                 // Reset background and trim text on exit
@@ -141,11 +142,11 @@ public class NumberText extends JTextField implements FocusListener
                 else
                 {
                     Jogo.qtdErros++;
-                    Jogo.txtQtdErros.setText(""+Jogo.qtdErros);
+                    Jogo.txtQtdErros.setText(""+(Jogo.qtdMaxima-Jogo.qtdErros));
                     this.setForeground(Color.RED);
-                    if(Jogo.qtdErros==5 && Jogo.fim==false)
+                    if(Jogo.qtdErros==Jogo.qtdMaxima && Jogo.fim==false)
                     {
-                     JOptionPane.showMessageDialog(null,"Infelizmente vc Erros 5 vezes!! vc Deve reiniciar o jogo :(");
+                     JOptionPane.showMessageDialog(null,"Infelizmente vc Errou "+Jogo.qtdMaxima+" vezes!! vc Deve reiniciar o jogo :(");
                      Jogo.fim=true;
                      return;
 				    }
@@ -172,10 +173,13 @@ public class NumberText extends JTextField implements FocusListener
 								endRow = r + 2;	
 						  }//for  i
 						  if(Jogo.qtdErros!=0)
-						     JOptionPane.showMessageDialog(null,"Qtde de erros no quadro="+Jogo.qtdErros);
+						       JOptionPane.showMessageDialog(null,"Qtde de erros no quadro="+Jogo.qtdErros);
 						  else
-						     JOptionPane.showMessageDialog(null,"Parabens vc finalizou o jogo :)");
-					
+						     {
+						       JOptionPane.showMessageDialog(null,"Parabens vc finalizou o jogo :)");
+						       Jogo.fim=true;
+						       return;
+					         }
 									   
 				   }
 				   

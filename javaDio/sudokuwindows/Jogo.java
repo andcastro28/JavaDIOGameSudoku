@@ -25,7 +25,7 @@ public class Jogo extends JFrame implements ActionListener
    
    private String row,col,value,fixed, flag;
    byte[] bytefoto;
-   public static int linha,pro, qtdBuracos, qtdErros;///procura
+   public static int linha,pro, qtdBuracos, qtdErros, qtdMaxima;///procura
 
    public static boolean fim;
    public static Space novoquadro[][]= new Space[9][9];
@@ -39,6 +39,7 @@ public Jogo()
   setLocationRelativeTo(null);
   flag="vazio";//vazio ou criado o quadro
   fim=false;
+  qtdMaxima=Menu.maximo;
 
     
   //JButton btReiniciar, btVerifica, btCompleta, btSair;
@@ -128,13 +129,13 @@ mainPanel.setLayout(new GridLayout(3,3));
 		add(txtQtdBuracos);
 		
 		
-		lbQtdErros=new JLabel("Erros cometidos:");
-		lbQtdErros.setToolTipText("Quantidade maxima de 5 Erros");
+		lbQtdErros=new JLabel("Qtd.Vidas:");
+		lbQtdErros.setToolTipText("Quantidade maxima de "+qtdMaxima+" Erros");
 		lbQtdErros.setBounds(130+110,660,100,20);
 		add(lbQtdErros);
 		
-		txtQtdErros=new JTextField(""+qtdErros);
-		txtQtdErros.setToolTipText("Quantidade maxima de 5 Erros");
+		txtQtdErros=new JTextField(""+(qtdMaxima-qtdErros));
+		txtQtdErros.setToolTipText("Quantidade maxima de "+qtdMaxima+" Erros");
 		txtQtdErros.setBounds(130+220,660,30,20);
 		txtQtdErros.setEnabled(false);
 		add(txtQtdErros);
